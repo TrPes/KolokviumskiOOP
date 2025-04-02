@@ -82,14 +82,14 @@ int main() {
     char NameOfBrand[101];
     float sizeInches;
     int price;
-    int touchInt; // Привремена целобројна променлива
+    int touchInt; 
 
-    cin.ignore();  // Ова го чисти новиот ред пред читање на `NameOfBrand`
-    cin.getline(NameOfBrand, 101); // Читање на брендот на лаптопот
+    cin.ignore();  
+    cin.getline(NameOfBrand, 101); 
 
     cin >> sizeInches >> price >> touchInt;
-    bool touch = (touchInt != 0);  // Претвори го `int` во `bool`
-    
+    bool touch = (touchInt != 0);  
+            
     Laptop newLaptop(NameOfBrand, sizeInches, price, touch);
     itStore[i].addLaptop(newLaptop);
 }
