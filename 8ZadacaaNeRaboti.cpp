@@ -2,29 +2,45 @@
 #include <cstring>
 #include <iomanip>
 using namespace std;
+class Laptop;
+class ITStore;
 
 class Laptop {
 private:
     char NameOfBrand[101];
     float sizeInches;
     bool touch;
-    int price;
+    long int price;
+    friend void Cheapest(ITStore stores[], int n);
 public:
-    Laptop() {
+    Laptop(){
         strcpy(NameOfBrand, "");
         sizeInches = 0;
-        touch = false;
         price = 0;
+        touch = false;
     }
-    Laptop(const char* nameOfBrand, float sizeInches, int price, bool touch) {
-        strcpy(this->NameOfBrand, nameOfBrand);
+
+    Laptop(const char* nameOfBrand, float sizeInches, long int price, bool touch){
+        strcpy(NameOfBrand, nameOfBrand);
         this->sizeInches = sizeInches;
         this->price = price;
         this->touch = touch;
     }
-    void printLaptop() const {
-        cout << NameOfBrand << " " << fixed << setprecision(1) << sizeInches
-             << " " << price << endl;
+
+    [[nodiscard]] const char* getName() const {
+        return NameOfBrand;
+    }
+
+    [[nodiscard]] float getSizeInches() const {
+        return sizeInches;
+    }
+
+    [[nodiscard]] long int getPrice() const {
+        return price;
+    }
+
+    [[nodiscard]] bool isTouch() const {
+        return touch;
     }
 };
 
@@ -34,30 +50,66 @@ private:
     char Location[101];
     Laptop laptops[100];
     int nmbOfLaptops;
+    friend void Cheapest(ITStore stores[], int n);
 public:
-    ITStore() {
+    ITStore() : nmbOfLaptops(0) {
         strcpy(NameOfITStore, "");
         strcpy(Location, "");
-        nmbOfLaptops = 0;
     }
+
     ITStore(const char* nameOfITStore, const char* location) {
         strcpy(this->NameOfITStore, nameOfITStore);
         strcpy(this->Location, location);
         nmbOfLaptops = 0;
     }
+
     void addLaptop(const Laptop &l) {
         if (nmbOfLaptops < 100) {
             laptops[nmbOfLaptops++] = l;
         }
     }
-    void printItStore() const {
-        cout << NameOfITStore << " " << Location << endl;
-        for (int i = 0; i < nmbOfLaptops; i++) {
-            laptops[i].printLaptop();
+
+   void printItStore() const {
+    cout << NameOfITStore << " " << Location << endl;
+    for (int i = 0; i < nmbOfLaptops; i++) {
+        cout << laptops[i].getName() << " ";
+
+        if (laptops[i].getSizeInches() == (int)(laptops[i].getSizeInches())) {
+            cout << (int)(laptops[i].getSizeInches()) << " ";
+        } else {
+            cout << fixed << setprecision(1) << laptops[i].getSizeInches() << " ";  // Print with one decimal
+        }
+
+        cout << fixed << setprecision(0) << laptops[i].getPrice() << endl;
+    }
+}
+};
+void Cheapest(ITStore stores[], int n) {
+    ITStore Cheapest = stores[0];
+    int minPrice = 0;
+    bool found = false;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < stores[i].nmbOfLaptops; ++j) {
+            if (stores[i].laptops[j].isTouch()) {
+                if (!found || stores[i].laptops[j].getPrice() < minPrice) {
+                    minPrice = stores[i].laptops[j].getPrice();
+                    Cheapest = stores[i];
+                    found = true;
+                }
+            }
         }
     }
-};
 
+
+    if (found) {
+        cout << "Najeftina ponuda ima prodavnicata:"<<endl;
+        cout << Cheapest.NameOfITStore << " " << Cheapest.Location << endl;
+
+        cout << "Najniskata cena iznesuva: " << minPrice << endl;
+    } else {
+        cout << "No touch laptop found!" << endl;
+    }
+};
 int main() {
     int n;
     cin >> n;
@@ -71,7 +123,6 @@ int main() {
         cin.getline(nameOfITStore, 101);
         cin.getline(location, 101);
 
-
         itStore[i] = ITStore(nameOfITStore, location);
 
         int nmbOfLaptops;
@@ -79,25 +130,28 @@ int main() {
         cin.ignore();
 
         for (int j = 0; j < nmbOfLaptops; j++) {
-    char NameOfBrand[101];
-    float sizeInches;
-    int price;
-    int touchInt; 
+            char NameOfBrand[101];
+            float sizeInches;
+            long int price;
+            bool touchInt;
 
-    cin.ignore();  
-    cin.getline(NameOfBrand, 101); 
+            cin.getline(NameOfBrand, 101);
+            cin >> sizeInches;
+            cin >> touchInt;
+            cin >> price;
+            cin.ignore();
 
-    cin >> sizeInches >> price >> touchInt;
-    bool touch = (touchInt != 0);  
-            
-    Laptop newLaptop(NameOfBrand, sizeInches, price, touch);
-    itStore[i].addLaptop(newLaptop);
-}
+
+
+            Laptop newLaptop(NameOfBrand, sizeInches, price, touchInt);
+            itStore[i].addLaptop(newLaptop);
+        }
     }
 
     for (int i = 0; i < n; i++) {
         itStore[i].printItStore();
     }
+    Cheapest(itStore, n);
 
     return 0;
 }
